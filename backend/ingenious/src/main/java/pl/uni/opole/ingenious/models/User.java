@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,8 +41,8 @@ public class User implements UserDetails {
     private Role role;
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() { //FIXME: List of roles
-        return List.of();
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.getName()));
     }
 
     @Override
@@ -89,6 +91,15 @@ public class User implements UserDetails {
 
     public User setPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public User setRole(Role role) {
+        this.role = role;
         return this;
     }
 }
