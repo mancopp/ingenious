@@ -16,6 +16,6 @@ public interface CommentRepository extends GenericRepository<Comment> {
 
     List<Comment> findBySongId(Long songId);
 
-    @Query("SELECT c FROM Comment c WHERE c.timestamp BETWEEN :start AND :end ORDER BY c.user.username")
+    @Query("SELECT c FROM Comment c WHERE c.timestamp BETWEEN :start AND :end ORDER BY c.user.fullName")
     List<Comment> findByTimestampBetweenAndSortByUser(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
