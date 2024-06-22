@@ -39,4 +39,11 @@ public class SongService extends GenericService<Song> {
     public List<Song> findByAlbumTitle(String albumTitle) {
         return songRepository.findByAlbumTitle(albumTitle);
     }
+
+    public List<Song> getByTextInTitleOrArtist(String searchTerm) {
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            return getAll();
+        }
+        return songRepository.findByTitleOrArtistContainingIgnoreCase(searchTerm);
+    }
 }

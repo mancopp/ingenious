@@ -16,4 +16,7 @@ public interface SongRepository extends GenericRepository<Song> {
 
     @Query("SELECT s FROM Song s WHERE s.album.title = :albumTitle")
     List<Song> findByAlbumTitle(@Param("albumTitle") String albumTitle);
+
+    @Query("SELECT s FROM Song s WHERE lower(s.title) LIKE lower(concat('%', :searchTerm, '%')) OR lower(s.artist) LIKE lower(concat('%', :searchTerm, '%'))")
+    List<Song> findByTitleOrArtistContainingIgnoreCase(@Param("searchTerm") String searchTerm);
 }

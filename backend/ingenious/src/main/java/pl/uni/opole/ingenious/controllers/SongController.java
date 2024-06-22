@@ -2,10 +2,13 @@ package pl.uni.opole.ingenious.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.uni.opole.ingenious.dtos.SongTitleArtistDto;
 import pl.uni.opole.ingenious.models.Song;
+import pl.uni.opole.ingenious.rest.SearchRequest;
 import pl.uni.opole.ingenious.services.SongService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/songs")
@@ -21,6 +24,14 @@ public class SongController extends GenericController<Song> {
     @GetMapping("/title/{title}")
     public ResponseEntity<List<Song>> getByTitle(@PathVariable String title) {
         return ResponseEntity.ok(songService.findByTitle(title));
+    }
+
+    @GetMapping("/all/min")
+    public List<SongTitleArtistDto> getAllMinified(@RequestBody SearchRequest searchRequest) {
+        String searchTerm = searchRequest.getSearchTerm();
+        return songService.getByTextInTitleOrArtist(searchTerm).stream()
+                .map(song -> new SongTitleArtistDto(song.getId(), song.getTitle(), song.getArtist()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/artist/{artist}")

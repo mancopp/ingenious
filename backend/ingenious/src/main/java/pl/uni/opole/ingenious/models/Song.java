@@ -16,6 +16,9 @@ public class Song {
     @Column(name = "artist", nullable = false)
     private String artist;
 
+    @Column(name = "lyrics")
+    private String lyrics;
+
     @ManyToOne
     @JoinColumn(name = "album_id")
     private Album album;

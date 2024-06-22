@@ -1,5 +1,7 @@
 package pl.uni.opole.ingenious.controllers;
 
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.uni.opole.ingenious.dtos.LoginUserDto;
 import pl.uni.opole.ingenious.dtos.RegisterUserDto;
 import pl.uni.opole.ingenious.models.User;
-import pl.uni.opole.ingenious.responses.LoginResponse;
+import pl.uni.opole.ingenious.rest.LoginResponse;
 import pl.uni.opole.ingenious.services.AuthenticationService;
 import pl.uni.opole.ingenious.services.JwtService;
 
@@ -25,10 +27,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
-
-        return ResponseEntity.ok(registeredUser);
+    public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
+        try {
+            User registeredUser = authenticationService.signup(registerUserDto);
+            return ResponseEntity.ok(registeredUser);
+        } catch (ConstraintViolationException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
 
     @PostMapping("/login")

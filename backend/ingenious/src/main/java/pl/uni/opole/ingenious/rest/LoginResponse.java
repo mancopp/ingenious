@@ -1,4 +1,4 @@
-package pl.uni.opole.ingenious.responses;
+package pl.uni.opole.ingenious.rest;
 
 public class LoginResponse {
     private String token;
