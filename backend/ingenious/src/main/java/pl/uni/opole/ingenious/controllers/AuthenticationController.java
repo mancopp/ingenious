@@ -28,14 +28,14 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
-        try {
+//        try {
             User registeredUser = authenticationService.signup(registerUserDto);
             return ResponseEntity.ok(registeredUser);
-        } catch (ConstraintViolationException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-        }
+//        } catch (ConstraintViolationException ex) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+//        } catch (Exception ex) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+//        }
     }
 
     @PostMapping("/login")
