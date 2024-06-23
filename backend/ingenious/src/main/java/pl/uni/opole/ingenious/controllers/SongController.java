@@ -27,8 +27,7 @@ public class SongController extends GenericController<Song> {
     }
 
     @GetMapping("/all/min")
-    public List<SongTitleArtistDto> getAllMinified(@RequestBody SearchRequest searchRequest) {
-        String searchTerm = searchRequest.getSearchTerm();
+    public List<SongTitleArtistDto> getAllMinified(@RequestParam String searchTerm) {
         return songService.getByTextInTitleOrArtist(searchTerm).stream()
                 .map(song -> new SongTitleArtistDto(song.getId(), song.getTitle(), song.getArtist()))
                 .collect(Collectors.toList());
