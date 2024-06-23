@@ -16,7 +16,15 @@ public class Song {
     @Column(name = "artist", nullable = false)
     private String artist;
 
-    @Column(name = "lyrics")
+    public String getLyrics() {
+        return lyrics;
+    }
+
+    public void setLyrics(String lyrics) {
+        this.lyrics = lyrics;
+    }
+
+    @Column(name = "lyrics", columnDefinition = "LONGTEXT")
     private String lyrics;
 
     @ManyToOne

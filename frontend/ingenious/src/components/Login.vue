@@ -1,6 +1,7 @@
 <template>
   <div>
     <h2>Login</h2>
+    <span>{{ errorsString }}</span>
     <form @submit.prevent="login">
       <input type="text" v-model="email" placeholder="Email" required />
       <input
@@ -11,6 +12,7 @@
       />
       <button type="submit">Login</button>
     </form>
+    <router-link to="/register">Don't have an account? Register</router-link>
   </div>
 </template>
 
@@ -22,6 +24,7 @@ export default {
     return {
       email: "",
       password: "",
+      errorsString: "",
     };
   },
   methods: {
@@ -39,6 +42,7 @@ export default {
         this.setLogoutTimer(expiresIn);
       } catch (error) {
         console.error("Error logging in:", error);
+        this.errorsString = error.response.data.description;
       }
     },
     setLogoutTimer(duration) {

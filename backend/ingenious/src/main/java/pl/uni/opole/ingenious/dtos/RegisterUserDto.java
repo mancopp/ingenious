@@ -13,8 +13,8 @@ public class RegisterUserDto {
     @Length(min = 4, message = "minimum password length is 4")
     private String password;
 
-    @NotNull(message = "email shouldn't be empty")
-    @NotEmpty(message = "email shouldn't be empty")
+    @NotNull(message = "full name shouldn't be empty")
+    @NotEmpty(message = "full name shouldn't be empty")
     private String fullName;
 
     public String getEmail() {

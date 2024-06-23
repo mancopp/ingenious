@@ -22,11 +22,7 @@
         <form @submit.prevent="addSong">
           <input v-model="newSong.title" placeholder="Title" required />
           <input v-model="newSong.artist" placeholder="artist" required />
-          <textarea
-            v-model="newSong.lyrics"
-            placeholder="Lyrics"
-            required
-          ></textarea>
+          <textarea v-model="newSong.lyrics" placeholder="Lyrics"></textarea>
           <button type="submit">Add</button>
         </form>
         <button @click="closeModal">Close</button>
@@ -44,7 +40,7 @@ export default {
     return {
       searchTerm: "",
       songs: [],
-      isAdmin: false,
+      isAdmin: localStorage.getItem("role") === "ROLE_ADMIN",
       showModal: false,
       newSong: {
         title: "",
@@ -55,7 +51,6 @@ export default {
   },
   async created() {
     await this.fetchSongs();
-    this.checkAdmin();
   },
   methods: {
     async fetchSongs() {
@@ -71,13 +66,6 @@ export default {
         console.error("Error fetching songs:", error);
       }
     },
-    checkAdmin() {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        this.isAdmin = payload.role === "admin";
-      }
-    },
     showAddSongModal() {
       this.showModal = true;
     },
@@ -86,9 +74,7 @@ export default {
     },
     async addSong() {
       try {
-        await axios.post("http://localhost:8080/songs/add", this.newSong, {
-          headers: { artistization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        await axios.post("http://localhost:8080/songs/add", this.newSong);
         this.fetchSongs();
         this.closeModal();
       } catch (error) {
@@ -104,3 +90,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+form {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+</style>

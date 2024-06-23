@@ -1,20 +1,35 @@
-<!-- src/components/SongDetails.vue -->
 <template>
   <div>
-    <h2>{{ song.title }} by {{ song.artist }}</h2>
-    <p>{{ song.lyrics }}</p>
-    <button v-if="isAdmin" @click="editSong">Edit</button>
-    <button v-if="isAdmin && editing" @click="deleteSong">Delete</button>
-    <div v-if="editing">
+    <button v-if="isAdmin" @click="toggleEditing">
+      {{ editing ? "Cancel" : isNewSong ? "Cancel" : "Edit" }}
+    </button>
+    <button v-if="isAdmin && editing && !isNewSong" @click="deleteSong">
+      Delete
+    </button>
+    <div>
       <form @submit.prevent="saveSong">
-        <input v-model="song.title" placeholder="Title" required />
-        <input v-model="song.artist" placeholder="artist" required />
+        <input
+          :class="['title', 'one-liner', editing || isNewSong ? '' : 'read']"
+          v-model="song.title"
+          placeholder="Title"
+          required
+          :readonly="!(editing || isNewSong)"
+        />
+        <input
+          :class="['artist', 'one-liner', editing || isNewSong ? '' : 'read']"
+          v-model="song.artist"
+          placeholder="Artist"
+          required
+          :readonly="!(editing || isNewSong)"
+        />
         <textarea
+          :class="['lyrics', editing || isNewSong ? '' : 'read']"
           v-model="song.lyrics"
           placeholder="Lyrics"
           required
+          :readonly="!(editing || isNewSong)"
         ></textarea>
-        <button type="submit">Save</button>
+        <button type="submit">{{ isNewSong ? "Add" : "Save" }}</button>
       </form>
     </div>
     <button @click="logout">Logout</button>
@@ -28,13 +43,25 @@ export default {
   data() {
     return {
       song: {},
-      isAdmin: false,
+      isAdmin: localStorage.getItem("role") === "ROLE_ADMIN",
       editing: false,
+      isNewSong: false, // Indicates if we are adding a new song
     };
   },
   async created() {
-    await this.fetchSong();
-    this.checkAdmin();
+    if (this.$route.params.id === "new") {
+      // Adding a new song
+      this.isNewSong = true;
+      this.song = {
+        title: "",
+        artist: "",
+        lyrics: "",
+      };
+      this.editing = true; // Start in editing mode for adding a new song
+    } else {
+      // Editing an existing song
+      await this.fetchSong();
+    }
   },
   methods: {
     async fetchSong() {
@@ -42,35 +69,29 @@ export default {
         const response = await axios.get(
           `http://localhost:8080/songs/${this.$route.params.id}`
         );
-        console.log(response.data);
         this.song = response.data;
       } catch (error) {
         console.error("Error fetching song:", error);
       }
     },
-    checkAdmin() {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        this.isAdmin = payload.role === "admin";
+    toggleEditing() {
+      this.editing = !this.editing;
+      if (this.isNewSong) {
+        this.isNewSong = false; // Cancel adding a new song
       }
-    },
-    editSong() {
-      this.editing = true;
     },
     async saveSong() {
       try {
-        await axios.put(
-          `http://localhost:8080/songs/${this.$route.params.id}`,
-          this.song,
-          {
-            headers: {
-              artistization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        if (this.isNewSong) {
+          // Adding a new song
+          await axios.post("http://localhost:8080/songs/add", this.song);
+        } else {
+          // Editing an existing song
+          await axios.put(`http://localhost:8080/songs/edit`, this.song);
+        }
         this.editing = false;
-        this.fetchSong();
+        this.isNewSong = false;
+        this.fetchSong(); // Refresh data
       } catch (error) {
         console.error("Error saving song:", error);
       }
@@ -78,12 +99,7 @@ export default {
     async deleteSong() {
       try {
         await axios.delete(
-          `http://localhost:8080/songs/${this.$route.params.id}`,
-          {
-            headers: {
-              artistization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          `http://localhost:8080/songs/delete/${this.$route.params.id}`
         );
         this.$router.push("/songs");
       } catch (error) {
@@ -99,3 +115,35 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+form {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.one-liner {
+  font-size: 1.5rem;
+}
+
+.lyrics {
+  font-size: 1.1rem;
+  height: 60vh;
+  white-space: pre-wrap;
+  resize: none;
+}
+
+.read {
+  border: none;
+}
+
+.read:focus,
+.read:focus-visible {
+  border: none;
+  outline: none;
+}
+</style>
