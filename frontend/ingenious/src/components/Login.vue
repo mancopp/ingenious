@@ -18,6 +18,7 @@
 
 <script>
 import axios from "axios";
+import { fetchUserRole } from "../utils/auth.js";
 
 export default {
   data() {
@@ -38,6 +39,7 @@ export default {
         localStorage.setItem("token", token);
         localStorage.setItem("expiresIn", Date.now() + expiresIn);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        fetchUserRole(token);
         this.$router.push("/songs");
         this.setLogoutTimer(expiresIn);
       } catch (error) {
@@ -53,6 +55,7 @@ export default {
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("expiresIn");
+      localStorage.removeItem("role");
       delete axios.defaults.headers.common["Authorization"];
       this.$router.push("/login");
     },

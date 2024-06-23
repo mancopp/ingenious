@@ -1,35 +1,33 @@
 <template>
   <div>
     <button v-if="isAdmin" @click="toggleEditing">
-      {{ editing ? "Cancel" : isNewSong ? "Cancel" : "Edit" }}
+      {{ editing ? "Cancel" : "Edit" }}
     </button>
-    <button v-if="isAdmin && editing && !isNewSong" @click="deleteSong">
-      Delete
-    </button>
+    <button v-if="isAdmin && editing" @click="deleteSong">Delete</button>
     <div>
       <form @submit.prevent="saveSong">
         <input
-          :class="['title', 'one-liner', editing || isNewSong ? '' : 'read']"
+          :class="['title', 'one-liner', editing ? '' : 'read']"
           v-model="song.title"
           placeholder="Title"
           required
-          :readonly="!(editing || isNewSong)"
+          :readonly="!editing"
         />
         <input
-          :class="['artist', 'one-liner', editing || isNewSong ? '' : 'read']"
+          :class="['artist', 'one-liner', editing ? '' : 'read']"
           v-model="song.artist"
           placeholder="Artist"
           required
-          :readonly="!(editing || isNewSong)"
+          :readonly="!editing"
         />
         <textarea
-          :class="['lyrics', editing || isNewSong ? '' : 'read']"
+          :class="['lyrics', editing ? '' : 'read']"
           v-model="song.lyrics"
           placeholder="Lyrics"
           required
-          :readonly="!(editing || isNewSong)"
+          :readonly="!editing"
         ></textarea>
-        <button type="submit">{{ isNewSong ? "Add" : "Save" }}</button>
+        <button v-if="isAdmin && editing" type="submit">Save</button>
       </form>
     </div>
     <button @click="logout">Logout</button>
@@ -38,30 +36,20 @@
 
 <script>
 import axios from "axios";
+import { fetchUserRole } from "../utils/auth";
 
 export default {
   data() {
     return {
       song: {},
-      isAdmin: localStorage.getItem("role") === "ROLE_ADMIN",
       editing: false,
-      isNewSong: false, // Indicates if we are adding a new song
+      isAdmin: false,
     };
   },
   async created() {
-    if (this.$route.params.id === "new") {
-      // Adding a new song
-      this.isNewSong = true;
-      this.song = {
-        title: "",
-        artist: "",
-        lyrics: "",
-      };
-      this.editing = true; // Start in editing mode for adding a new song
-    } else {
-      // Editing an existing song
-      await this.fetchSong();
-    }
+    await this.fetchSong();
+    this.isAdmin =
+      (await fetchUserRole(localStorage.getItem("token"))) === "ROLE_ADMIN";
   },
   methods: {
     async fetchSong() {
@@ -76,21 +64,11 @@ export default {
     },
     toggleEditing() {
       this.editing = !this.editing;
-      if (this.isNewSong) {
-        this.isNewSong = false; // Cancel adding a new song
-      }
     },
     async saveSong() {
       try {
-        if (this.isNewSong) {
-          // Adding a new song
-          await axios.post("http://localhost:8080/songs/add", this.song);
-        } else {
-          // Editing an existing song
-          await axios.put(`http://localhost:8080/songs/edit`, this.song);
-        }
+        await axios.put(`http://localhost:8080/songs/edit`, this.song);
         this.editing = false;
-        this.isNewSong = false;
         this.fetchSong(); // Refresh data
       } catch (error) {
         console.error("Error saving song:", error);
@@ -109,6 +87,7 @@ export default {
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("expiresIn");
+      localStorage.removeItem("role");
       delete axios.defaults.headers.common["artistization"];
       this.$router.push("/login");
     },

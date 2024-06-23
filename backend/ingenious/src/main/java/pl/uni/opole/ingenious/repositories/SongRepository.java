@@ -14,6 +14,9 @@ public interface SongRepository extends GenericRepository<Song> {
 
     List<Song> findByArtist(String artist);
 
+    @Query(value = "SELECT * FROM songs WHERE artist = :artistName", nativeQuery = true)
+    List<Song> findByArtistNative(@Param("artistName") String artistName);
+
     @Query("SELECT s FROM Song s WHERE s.album.title = :albumTitle")
     List<Song> findByAlbumTitle(@Param("albumTitle") String albumTitle);
 

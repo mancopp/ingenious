@@ -28,14 +28,15 @@ function setLogoutTimer(duration) {
   }, duration);
 }
 
-async function fetchUserRole(token) {
+export async function fetchUserRole(token) {
   try {
     const response = await axios.get('http://localhost:8080/auth/role', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const role = response.data;
-    console.log("User role:", role);
     localStorage.setItem("role", role);
+    console.log("User role:", role);
+    return role;
   } catch (error) {
     console.error("Error fetching user role:", error);
   }

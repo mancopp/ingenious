@@ -23,7 +23,6 @@ public abstract class GenericController<T> {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public T getById(@PathVariable Long id) {
         return service.getById(id);
     }

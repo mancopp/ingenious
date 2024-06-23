@@ -34,14 +34,15 @@
 
 <script>
 import axios from "axios";
+import { fetchUserRole } from "../utils/auth";
 
 export default {
   data() {
     return {
       searchTerm: "",
       songs: [],
-      isAdmin: localStorage.getItem("role") === "ROLE_ADMIN",
       showModal: false,
+      isAdmin: false,
       newSong: {
         title: "",
         artist: "",
@@ -51,6 +52,8 @@ export default {
   },
   async created() {
     await this.fetchSongs();
+    this.isAdmin =
+      (await fetchUserRole(localStorage.getItem("token"))) === "ROLE_ADMIN";
   },
   methods: {
     async fetchSongs() {
@@ -84,6 +87,7 @@ export default {
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("expiresIn");
+      localStorage.removeItem("role");
       delete axios.defaults.headers.common["artistization"];
       this.$router.push("/login");
     },

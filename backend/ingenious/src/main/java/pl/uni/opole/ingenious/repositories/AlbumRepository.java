@@ -12,6 +12,9 @@ public interface AlbumRepository extends GenericRepository<Album> {
 
     List<Album> findByTitle(String title);
 
+    @Query(value = "SELECT * FROM albums WHERE title = :albumTitle", nativeQuery = true)
+    List<Album> findByTitleNative(@Param("albumTitle") String albumTitle);
+
     @Query("SELECT a FROM Album a JOIN a.tags t WHERE t.name = :tagName")
     List<Album> findByTagName(@Param("tagName") String tagName);
 
